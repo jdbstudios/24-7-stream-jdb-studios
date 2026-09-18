@@ -1,74 +1,11 @@
-name: 24-7-stream-jdb-studios
+name: 24-7 Leger Stream
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: '0 */5 * * *'
 
 jobs:
   stream:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Code ophalen
-      uses: actions/checkout@v4
-
-    - name: FFmpeg en tools installeren
-      run: |
-        sudo apt update
-        sudo apt install ffmpeg wget -y
-        sudo wget https://github.com -O /usr/local/bin/yt-dlp
-        sudo chmod a+rx /usr/local/bin/yt-dlp
-
-    - name: Start de Livestream
-      env:
-        STREAM_KEY: ${{ secrets.YOUTUBE_STREAM_KEY }}
-      run: |
-        START_TIME=$(date +%s)
-        MAX_DURATION=19800 # 5,5 uur (veilige marge voor de 6-uur limiet)
-
-        echo "--- Starten van de gecombineerde streamcyclus ---"
-        
-        while true; do
-          
-          # ==================== PLAYLIST 1: DAGELIJKSE EDITS ====================
-          echo "--- Starten met Afspeellijst 1 ---"
-          yt-dlp --flat-playlist --playlist-random --get-id "https://www.youtube.com/playlist?list=PL8vP0NPgXqP-86NKUCHrqmPopfWxGhMcE" | while read -r id; do
-            
-            # Tijd-check VÓÓR de video start
-            CURRENT_TIME=$(date +%s)
-            ELAPSED=$((CURRENT_TIME - START_TIME))
-            if [ $ELAPSED -gt $MAX_DURATION ]; then
-              echo "Tijdslimiet bereikt ($ELAPSED sec). We stoppen na de volgende video netjes voor de wissel."
-              exit 0
-            fi
-
-            # Haal videotitel op
-            titel=$(yt-dlp --get-title "https://youtube.com")
-            echo "Nu live (P1): $titel"
-            
-            # Stream de edit volledig uit met tactische live-overlay
-            yt-dlp -f "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]" -o - "https://youtube.com" | ffmpeg -re -i pipe:0 -vf "drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf:text='\''🚨 UNIT LIVE\: $titel'\'':x=40:y=40:fontsize=22:fontcolor=white:box=1:boxcolor=black@0.6:boxborderw=10" -c:v libx264 -preset veryfast -b:v 3000k -maxrate 3000k -bufsize 6000k -pix_fmt yuv420p -g 50 -c:a aac -b:a 128k -ar 44100 -f flv rtmp://://youtube.com
-          done
-
-          # ==================== PLAYLIST 2: SPECIALS & QUIZZEN ====================
-          echo "--- Doorgaan naar Afspeellijst 2 ---"
-          yt-dlp --flat-playlist --playlist-random --get-id "https://www.youtube.com/playlist?list=PL8vP0NPgXqP9v3mwDsG-_Wl8TFeSWWrD9" | while read -r id; do
-            
-            # Tijd-check VÓÓR de video start
-            CURRENT_TIME=$(date +%s)
-            ELAPSED=$((CURRENT_TIME - START_TIME))
-            if [ $ELAPSED -gt $MAX_DURATION ]; then
-              echo "Tijdslimiet bereikt ($ELAPSED sec). We stoppen na de volgende video netjes voor de wissel."
-              exit 0
-            fi
-
-            # Haal videotitel op
-            titel=$(yt-dlp --get-title "https://youtube.com")
-            echo "Nu live (P2): $titel"
-            
-            # Stream de edit volledig uit met tactische live-overlay
-            yt-dlp -f "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]" -o - "https://youtube.com" | ffmpeg -re -i pipe:0 -vf "drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf:text='\''🚨 UNIT LIVE\: $titel'\'':x=40:y=40:fontsize=22:fontcolor=white:box=1:boxcolor=black@0.6:boxborderw=10" -c:v libx264 -preset veryfast -b:v 3000k -maxrate 3000k -bufsize 6000k -pix_fmt yuv420p -g 50 -c:a aac -b:a 128k -ar 44100 -f flv rtmp://://youtube.com
-          done
-
-        done
+    - name: Test Start
+      run: echo "De server start succesvol op!"
