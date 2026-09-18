@@ -1,4 +1,4 @@
-name: 24/7 Leger Edits Stream
+name: 24-7-stream-jdb-studios
 
 on:
   workflow_dispatch:
