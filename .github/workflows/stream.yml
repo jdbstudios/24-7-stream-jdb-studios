@@ -2,9 +2,7 @@ name: 24-7-stream-jdb-studios
 
 on:
   workflow_dispatch:
- push:             # <-- VOEG DIT TIJDELIJK TOE
   schedule:
-    # Start elke 5 uur een back-up sessie op om de stream live te houden
     - cron: '0 */5 * * *'
 
 jobs:
